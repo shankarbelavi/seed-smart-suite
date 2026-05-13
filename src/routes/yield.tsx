@@ -5,7 +5,9 @@ import { Sprout, MapPin, Loader2, Sparkles, TrendingUp } from "lucide-react";
 import { Nav } from "@/components/farm/Nav";
 import { GlassCard, SectionTitle, StatCard } from "@/components/farm/Card";
 import { LabeledSlider } from "@/components/farm/Slider";
-import { CROPS, predictYield, MODEL_METRICS } from "@/lib/ml/crops";
+import { CROPS } from "@/lib/ml/crops";
+import { predictYieldFn } from "@/lib/ml/predict.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { pushHistory } from "@/lib/ml/store";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { tooltipStyle } from "@/routes/recommendation";
@@ -33,22 +35,28 @@ function YieldPage() {
   const [fert, setFert] = useState(110);
   const [soilQ, setSoilQ] = useState(70);
   const [loading, setLoading] = useState(false);
-  const [out, setOut] = useState<{perHa:number; total:number; r2:number} | null>(null);
+  const [out, setOut] = useState<Awaited<ReturnType<typeof predictYieldFn>> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const yieldFn = useServerFn(predictYieldFn);
 
   const cropProfile = CROPS.find((c) => c.name === crop)!;
 
-  const run = () => {
+  const run = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const r = predictYield(cropProfile, { area, rainfall: rain, temp, fertilizer: fert, soilQuality: soilQ });
+    setError(null);
+    try {
+      const r = await yieldFn({ data: { crop, area, rainfall: rain, temp, fertilizer: fert, soilQuality: soilQ } });
       setOut(r);
       pushHistory({
         type: "yield",
-        summary: `${cropProfile.emoji} ${cropProfile.name} — ${r.total} t total`,
+        summary: `${r.emoji} ${r.crop} — ${r.total} t total`,
         detail: { crop, state, area, rainfall: rain, temp, perHa: r.perHa, total: r.total },
       });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Prediction failed");
+    } finally {
       setLoading(false);
-    }, 700);
+    }
   };
 
   // Synthesize a 6-year historical trend + 3-year forecast
@@ -61,7 +69,7 @@ function YieldPage() {
     return { year, value, forecast: isForecast };
   });
 
-  const regressionCmp = MODEL_METRICS.yield.map((m) => ({
+  const regressionCmp = (out?.models ?? []).map((m) => ({
     model: m.model.replace(" Regressor",""),
     "R² ×100": +(m.r2 * 100).toFixed(1),
     "RMSE ×10": +(m.rmse * 10).toFixed(1),
