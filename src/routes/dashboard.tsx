@@ -3,6 +3,7 @@ import { Nav } from "@/components/farm/Nav";
 import { GlassCard, SectionTitle, StatCard } from "@/components/farm/Card";
 import { Activity, Cpu, Leaf, Sprout, TrendingUp, Droplets, Thermometer, CloudRain } from "lucide-react";
 import { Area, AreaChart, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
+import { Fragment } from "react";
 import { tooltipStyle } from "@/routes/recommendation";
 import { MODEL_METRICS } from "@/lib/ml/crops";
 
@@ -193,13 +194,13 @@ function Heatmap() {
         <div></div>
         {nutrients.map((n) => <div key={n} className="text-center">{n}</div>)}
         {zones.map((z, zi) => (
-          <>
-            <div key={z+"l"} className="self-center pr-1 text-right">{z}</div>
+          <Fragment key={z}>
+            <div className="self-center pr-1 text-right">{z}</div>
             {data[zi].map((v, ni) => (
               <div key={z+ni} className="aspect-square rounded-md ring-1 ring-white/5"
                 style={{ background: color(v) }} title={`${z}-${nutrients[ni]}: ${v}`} />
             ))}
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
