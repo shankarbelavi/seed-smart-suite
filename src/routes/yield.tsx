@@ -109,6 +109,10 @@ function YieldPage() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--gradient-emerald)] px-5 py-3.5 font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.01] disabled:opacity-70">
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Forecasting…</> : <><Sparkles className="h-4 w-4" /> Predict Yield</>}
             </button>
+            {error && <p className="text-xs text-destructive">⚠️ {error}</p>}
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Powered by <span className="text-primary">POST /_serverFn/predictYieldFn</span>
+            </p>
           </GlassCard>
 
           <div className="space-y-6">
