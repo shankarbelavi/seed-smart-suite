@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YieldRouteImport } from './routes/yield'
 import { Route as RecommendationRouteImport } from './routes/recommendation'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
 const YieldRoute = YieldRouteImport.update({
@@ -23,6 +24,11 @@ const RecommendationRoute = RecommendationRouteImport.update({
   path: '/recommendation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/recommendation': typeof RecommendationRoute
   '/yield': typeof YieldRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/recommendation': typeof RecommendationRoute
   '/yield': typeof YieldRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/recommendation': typeof RecommendationRoute
   '/yield': typeof YieldRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/recommendation' | '/yield'
+  fullPaths: '/' | '/dashboard' | '/recommendation' | '/yield'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/recommendation' | '/yield'
-  id: '__root__' | '/' | '/recommendation' | '/yield'
+  to: '/' | '/dashboard' | '/recommendation' | '/yield'
+  id: '__root__' | '/' | '/dashboard' | '/recommendation' | '/yield'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   RecommendationRoute: typeof RecommendationRoute
   YieldRoute: typeof YieldRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecommendationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   RecommendationRoute: RecommendationRoute,
   YieldRoute: YieldRoute,
 }
