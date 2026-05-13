@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YieldRouteImport } from './routes/yield'
 import { Route as RecommendationRouteImport } from './routes/recommendation'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const YieldRoute = YieldRouteImport.update({
 const RecommendationRoute = RecommendationRouteImport.update({
   id: '/recommendation',
   path: '/recommendation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
+  '/history': typeof HistoryRoute
   '/recommendation': typeof RecommendationRoute
   '/yield': typeof YieldRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
+  '/history': typeof HistoryRoute
   '/recommendation': typeof RecommendationRoute
   '/yield': typeof YieldRoute
 }
@@ -60,19 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/dashboard': typeof DashboardRoute
+  '/history': typeof HistoryRoute
   '/recommendation': typeof RecommendationRoute
   '/yield': typeof YieldRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analytics' | '/dashboard' | '/recommendation' | '/yield'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/dashboard'
+    | '/history'
+    | '/recommendation'
+    | '/yield'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/dashboard' | '/recommendation' | '/yield'
+  to:
+    | '/'
+    | '/analytics'
+    | '/dashboard'
+    | '/history'
+    | '/recommendation'
+    | '/yield'
   id:
     | '__root__'
     | '/'
     | '/analytics'
     | '/dashboard'
+    | '/history'
     | '/recommendation'
     | '/yield'
   fileRoutesById: FileRoutesById
@@ -81,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
   DashboardRoute: typeof DashboardRoute
+  HistoryRoute: typeof HistoryRoute
   RecommendationRoute: typeof RecommendationRoute
   YieldRoute: typeof YieldRoute
 }
@@ -99,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/recommendation'
       fullPath: '/recommendation'
       preLoaderRoute: typeof RecommendationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -129,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
   DashboardRoute: DashboardRoute,
+  HistoryRoute: HistoryRoute,
   RecommendationRoute: RecommendationRoute,
   YieldRoute: YieldRoute,
 }
