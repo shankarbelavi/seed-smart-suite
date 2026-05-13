@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Beaker, Cloud, Droplets, Thermometer, CloudRain, FlaskConical, Sparkles, Loader2, TrendingUp } from "lucide-react";
 import { Nav } from "@/components/farm/Nav";
 import { GlassCard, SectionTitle } from "@/components/farm/Card";
 import { LabeledSlider } from "@/components/farm/Slider";
-import { CROPS, FEATURE_IMPORTANCE, MODEL_METRICS, type Inputs } from "@/lib/ml/crops";
+import { FEATURE_IMPORTANCE, MODEL_METRICS, type Inputs } from "@/lib/ml/crops";
 import { recommendCrop } from "@/lib/ml/predict.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { pushHistory } from "@/lib/ml/store";
