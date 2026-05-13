@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YieldRouteImport } from './routes/yield'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RecommendationRouteImport } from './routes/recommendation'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const YieldRoute = YieldRouteImport.update({
   id: '/yield',
   path: '/yield',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecommendationRoute = RecommendationRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
   '/recommendation': typeof RecommendationRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/yield': typeof YieldRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
   '/recommendation': typeof RecommendationRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/yield': typeof YieldRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/history': typeof HistoryRoute
   '/recommendation': typeof RecommendationRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/yield': typeof YieldRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/recommendation'
+    | '/sitemap.xml'
     | '/yield'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/recommendation'
+    | '/sitemap.xml'
     | '/yield'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/history'
     | '/recommendation'
+    | '/sitemap.xml'
     | '/yield'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   HistoryRoute: typeof HistoryRoute
   RecommendationRoute: typeof RecommendationRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   YieldRoute: typeof YieldRoute
 }
 
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/yield'
       fullPath: '/yield'
       preLoaderRoute: typeof YieldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recommendation': {
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   HistoryRoute: HistoryRoute,
   RecommendationRoute: RecommendationRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   YieldRoute: YieldRoute,
 }
 export const routeTree = rootRouteImport
