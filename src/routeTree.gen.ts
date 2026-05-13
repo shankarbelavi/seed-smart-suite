@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YieldRouteImport } from './routes/yield'
 import { Route as RecommendationRouteImport } from './routes/recommendation'
 import { Route as IndexRouteImport } from './routes/index'
 
+const YieldRoute = YieldRouteImport.update({
+  id: '/yield',
+  path: '/yield',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecommendationRoute = RecommendationRouteImport.update({
   id: '/recommendation',
   path: '/recommendation',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/recommendation': typeof RecommendationRoute
+  '/yield': typeof YieldRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/recommendation': typeof RecommendationRoute
+  '/yield': typeof YieldRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/recommendation': typeof RecommendationRoute
+  '/yield': typeof YieldRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/recommendation'
+  fullPaths: '/' | '/recommendation' | '/yield'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/recommendation'
-  id: '__root__' | '/' | '/recommendation'
+  to: '/' | '/recommendation' | '/yield'
+  id: '__root__' | '/' | '/recommendation' | '/yield'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   RecommendationRoute: typeof RecommendationRoute
+  YieldRoute: typeof YieldRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yield': {
+      id: '/yield'
+      path: '/yield'
+      fullPath: '/yield'
+      preLoaderRoute: typeof YieldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recommendation': {
       id: '/recommendation'
       path: '/recommendation'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   RecommendationRoute: RecommendationRoute,
+  YieldRoute: YieldRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
