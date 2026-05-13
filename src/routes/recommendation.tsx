@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Beaker, Cloud, Droplets, Thermometer, CloudRain, FlaskConical, Sparkles, Loader2, TrendingUp } from "lucide-react";
 import { Nav } from "@/components/farm/Nav";
 import { GlassCard, SectionTitle } from "@/components/farm/Card";
 import { LabeledSlider } from "@/components/farm/Slider";
-import { scoreCrops, FEATURE_IMPORTANCE, MODEL_METRICS, type Inputs } from "@/lib/ml/crops";
+import { FEATURE_IMPORTANCE, MODEL_METRICS, type Inputs } from "@/lib/ml/crops";
+import { recommendCrop } from "@/lib/ml/predict.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { pushHistory } from "@/lib/ml/store";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 
@@ -24,27 +26,32 @@ function RecommendationPage() {
     N: 90, P: 42, K: 43, ph: 6.5, temp: 24, humidity: 80, rainfall: 200,
   });
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ReturnType<typeof scoreCrops> | null>(null);
+  const [result, setResult] = useState<Awaited<ReturnType<typeof recommendCrop>> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const recommendFn = useServerFn(recommendCrop);
 
   const update = (k: keyof Inputs) => (v: number) => setInputs((p) => ({ ...p, [k]: v }));
 
-  const run = () => {
+  const run = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const scored = scoreCrops(inputs);
-      setResult(scored);
-      const top = scored[0];
+    setError(null);
+    try {
+      const res = await recommendFn({ data: inputs });
+      setResult(res);
       pushHistory({
         type: "recommendation",
-        summary: `${top.crop.emoji} ${top.crop.name} — ${top.confidence}% confidence`,
-        detail: { ...inputs, crop: top.crop.name, confidence: top.confidence },
+        summary: `${res.top.emoji} ${res.top.name} — ${res.top.confidence}% confidence`,
+        detail: { ...inputs, crop: res.top.name, confidence: res.top.confidence },
       });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Prediction failed");
+    } finally {
       setLoading(false);
-    }, 700);
+    }
   };
 
-  const top = result?.[0];
-  const alts = result?.slice(1, 4) ?? [];
+  const top = result?.top;
+  const alts = result?.alternates ?? [];
 
   return (
     <div className="min-h-screen">
@@ -79,6 +86,10 @@ function RecommendationPage() {
             >
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Running ensemble…</> : <><Sparkles className="h-4 w-4" /> Recommend Crop</>}
             </button>
+            {error && <p className="text-xs text-destructive">⚠️ {error}</p>}
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Powered by <span className="text-primary">POST /_serverFn/recommendCrop</span>
+            </p>
 
             {/* Weather mini cards */}
             <div className="grid grid-cols-3 gap-2 pt-2">
@@ -100,18 +111,18 @@ function RecommendationPage() {
                 </motion.div>
               )}
               {top && (
-                <motion.div key={top.crop.name}
+                <motion.div key={top.name}
                   initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
                   transition={{ duration: 0.4 }}>
                   <GlassCard className="relative overflow-hidden">
                     <div className="absolute inset-0 bg-[var(--gradient-emerald)] opacity-10" />
                     <div className="relative flex flex-col items-center gap-4 sm:flex-row sm:items-stretch">
                       <div className="grid h-32 w-32 shrink-0 place-items-center rounded-2xl bg-white/10 text-7xl ring-1 ring-white/10">
-                        {top.crop.emoji}
+                        {top.emoji}
                       </div>
                       <div className="flex-1">
                         <p className="text-xs uppercase tracking-[0.2em] text-primary">Recommended</p>
-                        <h3 className="font-display text-4xl font-bold">{top.crop.name}</h3>
+                        <h3 className="font-display text-4xl font-bold">{top.name}</h3>
                         <p className="mt-1 text-sm text-muted-foreground">
                           Best fit for the supplied soil and climate. Random Forest is the leading model.
                         </p>
@@ -135,10 +146,10 @@ function RecommendationPage() {
                   <TrendingUp className="h-4 w-4 text-accent" /> Alternative crops
                 </h4>
                 <div className="grid grid-cols-3 gap-3">
-                  {alts.map((a) => (
-                    <div key={a.crop.name} className="rounded-xl border border-white/5 bg-white/[0.03] p-3 text-center">
-                      <div className="text-3xl">{a.crop.emoji}</div>
-                      <p className="mt-1 text-sm font-medium">{a.crop.name}</p>
+                  {alts.slice(0, 3).map((a) => (
+                    <div key={a.name} className="rounded-xl border border-white/5 bg-white/[0.03] p-3 text-center">
+                      <div className="text-3xl">{a.emoji}</div>
+                      <p className="mt-1 text-sm font-medium">{a.name}</p>
                       <p className="text-xs text-muted-foreground">{a.confidence}%</p>
                     </div>
                   ))}
